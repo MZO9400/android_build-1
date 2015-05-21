@@ -31,7 +31,6 @@ Invoke ". build/envsetup.sh" from your shell to add the following functions to y
 - repopick: Utility to fetch changes from Gerrit.
 - installboot: Installs a boot.img to the connected device.
 - installrecovery: Installs a recovery.img to the connected device.
-
 Look at the source to view more functions. The complete list is:
 EOF
     T=$(gettop)
@@ -76,14 +75,13 @@ function check_product()
         return
     fi
 
-    if (echo -n $1 | grep -q -e "^cm_") ; then
-       CM_BUILD=$(echo -n $1 | sed -e 's/^cm_//g')
-       export BUILD_NUMBER=$((date +%s%N ; echo $CM_BUILD; hostname) | openssl sha1 | sed -e 's/.*=//g; s/ //g' | cut -c1-10)
+    if (echo -n $1 | grep -q -e "^ownrom_") ; then
+       OWNROM_BUILD=$(echo -n $1 | sed -e 's/^ownrom_//g')
+       export BUILD_NUMBER=$((date +%s%N ; echo $OWNROM_BUILD; hostname) | openssl sha1 | sed -e 's/.*=//g; s/ //g' | cut -c1-10)
     else
-       CM_BUILD=
+       OWNROM_BUILD=
     fi
-    export CM_BUILD
-
+    export OWNROM_BUILD
         TARGET_PRODUCT=$1 \
         TARGET_BUILD_VARIANT= \
         TARGET_BUILD_TYPE= \
@@ -91,9 +89,7 @@ function check_product()
         get_build_var TARGET_DEVICE > /dev/null
     # hide successful answers, but allow the errors to show
 }
-
 VARIANT_CHOICES=(user userdebug eng)
-
 # check to see if the supplied variant is valid
 function check_variant()
 {
@@ -106,7 +102,6 @@ function check_variant()
     done
     return 1
 }
-
 function setpaths()
 {
     T=$(gettop)
@@ -114,7 +109,6 @@ function setpaths()
         echo "Couldn't locate the top of the tree.  Try setting TOP."
         return
     fi
-
     ##################################################################
     #                                                                #
     #              Read me before you modify this code               #
@@ -125,10 +119,8 @@ function setpaths()
     #   and still have working paths.                                #
     #                                                                #
     ##################################################################
-
     # Note: on windows/cygwin, ANDROID_BUILD_PATHS will contain spaces
     # due to "C:\Program Files" being in the path.
-
     # out with the old
     if [ -n "$ANDROID_BUILD_PATHS" ] ; then
         export PATH=${PATH/$ANDROID_BUILD_PATHS/}
@@ -138,16 +130,13 @@ function setpaths()
         # strip leading ':', if any
         export PATH=${PATH/:%/}
     fi
-
     # and in with the new
     prebuiltdir=$(getprebuilt)
     gccprebuiltdir=$(get_abs_build_var ANDROID_GCC_PREBUILTS)
-
     # defined in core/config.mk
     targetgccversion=$(get_build_var TARGET_GCC_VERSION)
     targetgccversion2=$(get_build_var 2ND_TARGET_GCC_VERSION)
     export TARGET_GCC_VERSION=$targetgccversion
-
     # The gcc toolchain does not exists for windows/cygwin. In this case, do not reference it.
     export ANDROID_TOOLCHAIN=
     export ANDROID_TOOLCHAIN_2ND_ARCH=
@@ -172,11 +161,9 @@ function setpaths()
     if [ -d "$gccprebuiltdir/$toolchaindir" ]; then
         export ANDROID_TOOLCHAIN=$gccprebuiltdir/$toolchaindir
     fi
-
     if [ -d "$gccprebuiltdir/$toolchaindir2" ]; then
         export ANDROID_TOOLCHAIN_2ND_ARCH=$gccprebuiltdir/$toolchaindir2
     fi
-
     unset ANDROID_KERNEL_TOOLCHAIN_PATH
     case $ARCH in
         arm)
@@ -191,10 +178,8 @@ function setpaths()
             # No need to set ARM_EABI_TOOLCHAIN for other ARCHs
             ;;
     esac
-
     export ANDROID_DEV_SCRIPTS=$T/development/scripts:$T/prebuilts/devtools/tools
     export ANDROID_BUILD_PATHS=$(get_build_var ANDROID_BUILD_PATHS):$ANDROID_TOOLCHAIN:$ANDROID_TOOLCHAIN_2ND_ARCH:$ANDROID_KERNEL_TOOLCHAIN_PATH$ANDROID_DEV_SCRIPTS:
-
     # If prebuilts/android-emulator/<system>/ exists, prepend it to our PATH
     # to ensure that the corresponding 'emulator' binaries are used.
     case $(uname -s) in
@@ -212,9 +197,7 @@ function setpaths()
         ANDROID_BUILD_PATHS=$ANDROID_BUILD_PATHS$ANDROID_EMULATOR_PREBUILTS:
         export ANDROID_EMULATOR_PREBUILTS
     fi
-
     export PATH=$ANDROID_BUILD_PATHS$PATH
-
     unset ANDROID_JAVA_TOOLCHAIN
     unset ANDROID_PRE_BUILD_PATHS
     if [ -n "$JAVA_HOME" ]; then
@@ -222,19 +205,15 @@ function setpaths()
         export ANDROID_PRE_BUILD_PATHS=$ANDROID_JAVA_TOOLCHAIN:
         export PATH=$ANDROID_PRE_BUILD_PATHS$PATH
     fi
-
     unset ANDROID_PRODUCT_OUT
     export ANDROID_PRODUCT_OUT=$(get_abs_build_var PRODUCT_OUT)
     export OUT=$ANDROID_PRODUCT_OUT
-
     unset ANDROID_HOST_OUT
     export ANDROID_HOST_OUT=$(get_abs_build_var HOST_OUT)
-
     # needed for building linux on MacOS
     # TODO: fix the path
     #export HOST_EXTRACFLAGS="-I "$T/system/kernel_headers/host_include
 }
-
 function printconfig()
 {
     T=$(gettop)
@@ -244,23 +223,19 @@ function printconfig()
     fi
     get_build_var report_config
 }
-
 function set_stuff_for_environment()
 {
     settitle
     set_java_home
     setpaths
     set_sequence_number
-
     # With this environment variable new GCC can apply colors to warnings/errors
     export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 }
-
 function set_sequence_number()
 {
     export BUILD_ENV_SEQUENCE_NUMBER=10
 }
-
 function settitle()
 {
     if [ "$STAY_OFF_MY_LAWN" = "" ]; then
@@ -278,45 +253,37 @@ function settitle()
         if [ ! -z "$ANDROID_PROMPT_PREFIX" ]; then
             PROMPT_COMMAND="$(echo $PROMPT_COMMAND | sed -e 's/$ANDROID_PROMPT_PREFIX //g')"
         fi
-
         if [ -z "$apps" ]; then
             ANDROID_PROMPT_PREFIX="[${arch}-${product}-${variant}]"
         else
             ANDROID_PROMPT_PREFIX="[$arch $apps $variant]"
         fi
         export ANDROID_PROMPT_PREFIX
-
         # Inject build data into hardstatus
         export PROMPT_COMMAND="$(echo $PROMPT_COMMAND | sed -e 's/\\033]0;\(.*\)\\007/\\033]0;$ANDROID_PROMPT_PREFIX \1\\007/g')"
     fi
 }
-
 function check_bash_version()
 {
     # Keep us from trying to run in something that isn't bash.
     if [ -z "${BASH_VERSION}" ]; then
         return 1
     fi
-
     # Keep us from trying to run in bash that's too old.
     if [ "${BASH_VERSINFO[0]}" -lt 4 ] ; then
         return 2
     fi
-
     return 0
 }
-
 function choosetype()
 {
     echo "Build type choices are:"
     echo "     1. release"
     echo "     2. debug"
     echo
-
     local DEFAULT_NUM DEFAULT_VALUE
     DEFAULT_NUM=1
     DEFAULT_VALUE=release
-
     export TARGET_BUILD_TYPE=
     local ANSWER
     while [ -z $TARGET_BUILD_TYPE ]
@@ -354,10 +321,8 @@ function choosetype()
             break
         fi
     done
-
     set_stuff_for_environment
 }
-
 #
 # This function isn't really right:  It chooses a TARGET_PRODUCT
 # based on the list of boards.  Usually, that gets you something
@@ -371,7 +336,6 @@ function chooseproduct()
     else
         default_value=full
     fi
-
     export TARGET_PRODUCT=
     local ANSWER
     while [ -z "$TARGET_PRODUCT" ]
@@ -383,7 +347,6 @@ function chooseproduct()
             echo $1
             ANSWER=$1
         fi
-
         if [ -z "$ANSWER" ] ; then
             export TARGET_PRODUCT=$default_value
         else
@@ -398,10 +361,8 @@ function chooseproduct()
             break
         fi
     done
-
     set_stuff_for_environment
 }
-
 function choosevariant()
 {
     echo "Variant choices are:"
@@ -498,7 +459,7 @@ function print_lunch_menu()
        echo "  (ohai, koush!)"
     fi
     echo
-    if [ "z${CM_DEVICES_ONLY}" != "z" ]; then
+    if [ "z${OWNROM_DEVICES_ONLY}" != "z" ]; then
        echo "Breakfast menu... pick a combo:"
     else
        echo "Lunch menu... pick a combo:"
@@ -512,7 +473,7 @@ function print_lunch_menu()
         i=$(($i+1))
     done | column
 
-    if [ "z${CM_DEVICES_ONLY}" != "z" ]; then
+    if [ "z${OWNROM_DEVICES_ONLY}" != "z" ]; then
        echo "... and don't forget the bacon!"
     fi
 
@@ -523,7 +484,7 @@ function brunch()
 {
     breakfast $*
     if [ $? -eq 0 ]; then
-        mka bacon
+        mka ownrom
     else
         echo "No such item in brunch menu. Try 'breakfast'"
         return 1
@@ -535,10 +496,10 @@ function breakfast()
 {
     target=$1
     local variant=$2
-    CM_DEVICES_ONLY="true"
+    OWNROM_DEVICES_ONLY="true"
     unset LUNCH_MENU_CHOICES
     add_lunch_combo full-eng
-    for f in `/bin/ls vendor/cm/vendorsetup.sh 2> /dev/null`
+    for f in `/bin/ls vendor/ownrom/vendorsetup.sh 2> /dev/null`
         do
             echo "including $f"
             . $f
@@ -554,11 +515,11 @@ function breakfast()
             # A buildtype was specified, assume a full device name
             lunch $target
         else
-            # This is probably just the CM model name
+            # This is probably just the OwnROM model name
             if [ -z "$variant" ]; then
                 variant="userdebug"
             fi
-            lunch cm_$target-$variant
+            lunch ownrom_$target-$variant
         fi
     fi
     return $?
@@ -607,7 +568,7 @@ function lunch()
     check_product $product
     if [ $? -ne 0 ]
     then
-        # if we can't find a product, try to grab it off the CM github
+        # if we can't find a product, try to grab it off the OwnROM github
         T=$(gettop)
         pushd $T > /dev/null
         build/tools/roomservice.py $product
@@ -719,8 +680,8 @@ function tapas()
 function eat()
 {
     if [ "$OUT" ] ; then
-        MODVERSION=$(get_build_var CM_VERSION)
-        ZIPFILE=cm-$MODVERSION.zip
+        MODVERSION=$(get_build_var OWNROM_VERSION)
+        ZIPFILE=OwnROM-$MODVERSION.zip
         ZIPPATH=$OUT/$ZIPFILE
         if [ ! -f $ZIPPATH ] ; then
             echo "Nothing to eat"
@@ -735,7 +696,7 @@ function eat()
             done
             echo "Device Found.."
         fi
-    if (adb shell cat /system/build.prop | grep -q "ro.cm.device=$CM_BUILD");
+    if (adb shell cat /system/build.prop | grep -q "ro.ownrom.device=$OWNROM_BUILD");
     then
         # if adbd isn't root we can't write to /cache/recovery/
         adb root
@@ -757,7 +718,7 @@ EOF
     fi
     return $?
     else
-        echo "The connected device does not appear to be $CM_BUILD, run away!"
+        echo "The connected device does not appear to be $OWNROM_BUILD, run away!"
     fi
 }
 
@@ -1974,7 +1935,7 @@ function installboot()
     sleep 1
     adb wait-for-online shell mount /system 2>&1 > /dev/null
     adb wait-for-online remount
-    if (adb shell cat /system/build.prop | grep -q "ro.cm.device=$CM_BUILD");
+    if (adb shell cat /system/build.prop | grep -q "ro.ownrom.device=$OWNROM_BUILD");
     then
         adb push $OUT/boot.img /cache/
         for i in $OUT/system/lib/modules/*;
@@ -1985,7 +1946,7 @@ function installboot()
         adb shell chmod 644 /system/lib/modules/*
         echo "Installation complete."
     else
-        echo "The connected device does not appear to be $CM_BUILD, run away!"
+        echo "The connected device does not appear to be $OWNROM_BUILD, run away!"
     fi
 }
 
@@ -2019,13 +1980,13 @@ function installrecovery()
     sleep 1
     adb wait-for-online shell mount /system 2>&1 >> /dev/null
     adb wait-for-online remount
-    if (adb shell cat /system/build.prop | grep -q "ro.cm.device=$CM_BUILD");
+    if (adb shell cat /system/build.prop | grep -q "ro.ownrom.device=$OWNROM_BUILD");
     then
         adb push $OUT/recovery.img /cache/
         adb shell dd if=/cache/recovery.img of=$PARTITION
         echo "Installation complete."
     else
-        echo "The connected device does not appear to be $CM_BUILD, run away!"
+        echo "The connected device does not appear to be $OWNROM_BUILD, run away!"
     fi
 }
 
@@ -2041,7 +2002,6 @@ function makerecipe() {
   cd ..
 
   repo forall -c '
-
   if [ "$REPO_REMOTE" == "github" ]
   then
     pwd
@@ -2067,18 +2027,14 @@ function cmgerrit() {
                 cat <<EOF
 Usage:
     $FUNCNAME COMMAND [OPTIONS] [CHANGE-ID[/PATCH-SET]][{@|^|~|:}ARG] [-- ARGS]
-
 Commands:
     fetch   Just fetch the change as FETCH_HEAD
     help    Show this help, or for a specific command
     pull    Pull a change into current branch
     push    Push HEAD or a local branch to Gerrit for a specific branch
-
 Any other Git commands that support refname would work as:
     git fetch URL CHANGE && git COMMAND OPTIONS FETCH_HEAD{@|^|~|:}ARG -- ARGS
-
 See '$FUNCNAME help COMMAND' for more information on a specific command.
-
 Example:
     $FUNCNAME checkout -b topic 1234/5
 works as:
@@ -2099,11 +2055,9 @@ EOF
                 help) $FUNCNAME help ;;
                 fetch|pull) cat <<EOF
 usage: $FUNCNAME $1 [OPTIONS] CHANGE-ID[/PATCH-SET]
-
 works as:
     git $1 OPTIONS http://DOMAIN/p/PROJECT \\
       refs/changes/HASH/CHANGE-ID/{PATCH-SET|1}
-
 Example:
     $FUNCNAME $1 1234
 will $1 patch-set 1 of change 1234
@@ -2111,11 +2065,9 @@ EOF
                     ;;
                 push) cat <<EOF
 usage: $FUNCNAME push [OPTIONS] [LOCAL_BRANCH:]REMOTE_BRANCH
-
 works as:
     git push OPTIONS ssh://USER@DOMAIN:29418/PROJECT \\
       {LOCAL_BRANCH|HEAD}:refs/for/REMOTE_BRANCH
-
 Example:
     $FUNCNAME push fix6789:gingerbread
 will push local branch 'fix6789' to Gerrit for branch 'gingerbread'.
@@ -2126,7 +2078,6 @@ EOF
                     $FUNCNAME __cmg_err_not_supported $1 && return
                     cat <<EOF
 usage: $FUNCNAME $1 [OPTIONS] CHANGE-ID[/PATCH-SET][{@|^|~|:}ARG] [-- ARGS]
-
 works as:
     git fetch http://DOMAIN/p/PROJECT \\
       refs/changes/HASH/CHANGE-ID/{PATCH-SET|1} \\
@@ -2392,7 +2343,7 @@ function dopush()
         echo "Device Found."
     fi
 
-    if (adb shell cat /system/build.prop | grep -q "ro.cm.device=$CM_BUILD");
+    if (adb shell cat /system/build.prop | grep -q "ro.ownrom.device=$OWNROM_BUILD");
     then
     # retrieve IP and PORT info if we're using a TCP connection
     TCPIPPORT=$(adb devices | egrep '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+[^0-9]+' \
@@ -2495,7 +2446,7 @@ EOF
     rm -f $OUT/.log
     return 0
     else
-        echo "The connected device does not appear to be $CM_BUILD, run away!"
+        echo "The connected device does not appear to be $OWNROM_BUILD, run away!"
     fi
 }
 
@@ -2641,7 +2592,7 @@ unset f
 
 # Add completions
 check_bash_version && {
-    dirs="sdk/bash_completion vendor/cm/bash_completion"
+    dirs="sdk/bash_completion vendor/ownrom/bash_completion"
     for dir in $dirs; do
     if [ -d ${dir} ]; then
         for f in `/bin/ls ${dir}/[a-z]*.bash 2> /dev/null`; do

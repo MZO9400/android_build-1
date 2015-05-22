@@ -179,9 +179,9 @@ include $(BUILD_SYSTEM)/node_fns.mk
 include $(BUILD_SYSTEM)/product.mk
 include $(BUILD_SYSTEM)/device.mk
 
-# A OwnROM build needs only the OwnROM product makefiles.
+# An OwnROM build needs only the OwnROM product makefiles.
 ifneq ($(OWNROM_BUILD),)
-  all_product_configs := $(shell ls device/*/$(OWNROM_BUILD)/ownrom.mk)
+  all_product_configs := $(shell find device -path "*/$(OWNROM_BUILD)/ownrom.mk")
 else
   ifneq ($(strip $(TARGET_BUILD_APPS)),)
   # An unbundled app build needs only the core product makefiles.

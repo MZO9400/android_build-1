@@ -601,15 +601,15 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
   script.Unmount("/data")
   script.AppendExtra("endif;")
 
-	script.Print("    )                  (        )     *     ");
-	script.Print(" ( /(                  )\ )  ( /(   (  \`    ");
-	script.Print(" )\())  (  (          (()/(  )\())  )\))(   ");
-	script.Print("((_)\   )\))(    (     /(_))((_)\  ((_)()\  ");
-	script.Print("  ((_) ((_)()\   )\ ) (_))    ((_) (_()((_) ");
-	script.Print(" / _ \ _(()((_) _(_/( | _ \  / _ \ |  \/  | ");
-	script.Print("| (_) |\ V  V /| ' \))|   / | (_) || |\/| | ");
-	script.Print(" \___/  \_/\_/ |_||_| |_|_\  \___/ |_|  |_| ");
-	script.Print("                                            ");
+  script.Print("    )                  (        )     *     ");
+  script.Print(" ( /(                  )\ )  ( /(   (  \`    ");
+  script.Print(" )\())  (  (          (()/(  )\())  )\))(   ");
+  script.Print("((_)\   )\))(    (     /(_))((_)\  ((_)()\  ");
+  script.Print("  ((_) ((_)()\   )\ ) (_))    ((_) (_()((_) ");
+  script.Print(" / _ \ _(()((_) _(_/( | _ \  / _ \ |  \/  | ");
+  script.Print("| (_) |\ V  V /| ' \))|   / | (_) || |\/| | ");
+  script.Print(" \___/  \_/\_/ |_||_| |_|_\  \___/ |_|  |_| ");
+  script.Print("                                            ");
 
   if "selinux_fc" in OPTIONS.info_dict:
     WritePolicyConfig(OPTIONS.info_dict["selinux_fc"], output_zip)

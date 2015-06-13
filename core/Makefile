@@ -1712,7 +1712,15 @@ ownrom: otapackage
 	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(OWNROM_TARGET_PACKAGE)
 	$(hide) $(MD5SUM) $(OWNROM_TARGET_PACKAGE) > $(OWNROM_TARGET_PACKAGE).md5sum
 	@echo -e ${CL_CYN}"Package Complete: $(OWNROM_TARGET_PACKAGE)"${CL_RST}
-
+	@echo -e ${CL_CYN}"    )                  (        )     *     "${CL_RST}
+	@echo -e ${CL_CYN}" ( /(                  )\ )  ( /(   (  \`    "${CL_RST}
+	@echo -e ${CL_CYN}" )\())  (  (          (()/(  )\())  )\))(   "${CL_RST}
+	@echo -e ${CL_CYN}"((_)\   )\))(    (     /(_))((_)\  ((_)()\  "${CL_RST}
+	@echo -e ${CL_CYN}"  ((_) ((_)()\   )\ ) (_))    ((_) (_()((_) "${CL_RST}
+	@echo -e ${CL_CYN}" / _ \ _(()((_) _(_/( | _ \  / _ \ |  \/  | "${CL_RST}
+	@echo -e ${CL_CYN}"| (_) |\ V  V /| ' \))|   / | (_) || |\/| | "${CL_RST}
+	@echo -e ${CL_CYN}" \___/  \_/\_/ |_||_| |_|_\  \___/ |_|  |_| "${CL_RST}
+	@echo -e ${CL_CYN}"                                            "${CL_RST}
 ifeq ($(USE_PREBUILT_CHROMIUM),1)
 ifneq ($(PRODUCT_PREBUILT_WEBVIEWCHROMIUM),yes)
 	@echo -e ${CL_GRN}"Running Chromium prebuilt setup script..."${CL_RST}

@@ -84,13 +84,13 @@ function check_product()
         return
     fi
 
-    if (echo -n $1 | grep -q -e "^cm_") ; then
-       CM_BUILD=$(echo -n $1 | sed -e 's/^cm_//g')
-       export BUILD_NUMBER=$((date +%s%N ; echo $CM_BUILD; hostname) | openssl sha1 | sed -e 's/.*=//g; s/ //g' | cut -c1-10)
+    if (echo -n $1 | grep -q -e "^ownrom_") ; then
+       OWNROM_BUILD=$(echo -n $1 | sed -e 's/^ownrom_//g')
+       export BUILD_NUMBER=$((date +%s%N ; echo $OWNROM_BUILD; hostname) | openssl sha1 | sed -e 's/.*=//g; s/ //g' | cut -c1-10)
     else
-       CM_BUILD=
+       OWNROM_BUILD=
     fi
-    export CM_BUILD
+    export OWNROM_BUILD
 
         TARGET_PRODUCT=$1 \
         TARGET_BUILD_VARIANT= \
@@ -512,7 +512,7 @@ function print_lunch_menu()
        echo "  (ohai, koush!)"
     fi
     echo
-    if [ "z${CM_DEVICES_ONLY}" != "z" ]; then
+    if [ "z${OWNROM_DEVICES_ONLY}" != "z" ]; then
        echo "Breakfast menu... pick a combo:"
     else
        echo "Lunch menu... pick a combo:"
@@ -526,7 +526,7 @@ function print_lunch_menu()
         i=$(($i+1))
     done | column
 
-    if [ "z${CM_DEVICES_ONLY}" != "z" ]; then
+    if [ "z${OWNROM_DEVICES_ONLY}" != "z" ]; then
        echo "... and don't forget the bacon!"
     fi
 
@@ -549,10 +549,10 @@ function breakfast()
 {
     target=$1
     local variant=$2
-    CM_DEVICES_ONLY="true"
+    OWNROM_DEVICES_ONLY="true"
     unset LUNCH_MENU_CHOICES
     add_lunch_combo full-eng
-    for f in `/bin/ls vendor/cm/vendorsetup.sh 2> /dev/null`
+    for f in `/bin/ls vendor/ownrom/vendorsetup.sh 2> /dev/null`
         do
             echo "including $f"
             . $f
@@ -568,11 +568,11 @@ function breakfast()
             # A buildtype was specified, assume a full device name
             lunch $target
         else
-            # This is probably just the CM model name
+            # This is probably just the OwnROM model name
             if [ -z "$variant" ]; then
                 variant="userdebug"
             fi
-            lunch cm_$target-$variant
+            lunch ownrom_$target-$variant
         fi
     fi
     return $?
@@ -622,7 +622,7 @@ function lunch()
     check_product $product
     if [ $? -ne 0 ]
     then
-        # if we can't find a product, try to grab it off the CM github
+        # if we can't find a product, try to grab it off the OwnROM github
         T=$(gettop)
         pushd $T > /dev/null
         build/tools/roomservice.py $product
@@ -734,8 +734,8 @@ function tapas()
 function eat()
 {
     if [ "$OUT" ] ; then
-        MODVERSION=$(get_build_var CM_VERSION)
-        ZIPFILE=cm-$MODVERSION.zip
+        MODVERSION=$(get_build_var OWNROM_VERSION)
+        ZIPFILE=OwnROM-$MODVERSION.zip
         ZIPPATH=$OUT/$ZIPFILE
         if [ ! -f $ZIPPATH ] ; then
             echo "Nothing to eat"
@@ -750,7 +750,7 @@ function eat()
             done
             echo "Device Found.."
         fi
-    if (adb shell getprop ro.cm.device | grep -q "$CM_BUILD");
+    if (adb shell getprop ro.ownrom.device | grep -q "$OWNROM_BUILD");
     then
         # if adbd isn't root we can't write to /cache/recovery/
         adb root
@@ -772,7 +772,7 @@ EOF
     fi
     return $?
     else
-        echo "The connected device does not appear to be $CM_BUILD, run away!"
+        echo "The connected device does not appear to be $OWNROM_BUILD, run away!"
     fi
 }
 
@@ -2506,7 +2506,7 @@ unset f
 
 # Add completions
 check_bash_version && {
-    dirs="sdk/bash_completion vendor/cm/bash_completion"
+    dirs="sdk/bash_completion vendor/ownrom/bash_completion"
     for dir in $dirs; do
     if [ -d ${dir} ]; then
         for f in `/bin/ls ${dir}/[a-z]*.bash 2> /dev/null`; do

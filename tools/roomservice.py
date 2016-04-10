@@ -37,10 +37,10 @@ except ImportError:
 # set this to the default remote to use in repo
 default_rem = "github"
 # set this to the default revision to use (branch/tag name)
-default_rev = "cm-13.0"
+default_rev = "own-mm"
 # set this to the remote that you use for projects from your team repos
 # example fetch="https://github.com/omnirom"
-default_team_rem = "github"
+default_team_rem = "device"
 # this shouldn't change unless google makes changes
 local_manifest_dir = ".repo/local_manifests"
 # change this to your name on github (or equivalent hosting)

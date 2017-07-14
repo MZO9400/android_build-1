@@ -2248,7 +2248,7 @@ otapackage: $(INTERNAL_OTA_PACKAGE_TARGET)
 ownrom: otapackage
 	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(OWNROM_TARGET_PACKAGE)
 	$(hide) $(MD5SUM) $(OWNROM_TARGET_PACKAGE) > $(OWNROM_TARGET_PACKAGE).md5sum
-	@echo -e ${CL_CYN}"Package Complete: $(OWNROM_TARGET_PACKAGE)"${CL_RST}
+	@printf ${CL_CYN}"Package Complete: $(OWNROM_TARGET_PACKAGE)"${CL_RST}
 
 endif    # build_ota_package
 # -----------------------------------------------------------------

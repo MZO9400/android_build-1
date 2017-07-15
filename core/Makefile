@@ -2248,7 +2248,9 @@ otapackage: $(INTERNAL_OTA_PACKAGE_TARGET)
 ownrom: otapackage
 	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(OWNROM_TARGET_PACKAGE)
 	$(hide) $(MD5SUM) $(OWNROM_TARGET_PACKAGE) > $(OWNROM_TARGET_PACKAGE).md5sum
-	@printf ${CL_CYN}"Package Complete: $(OWNROM_TARGET_PACKAGE)"${CL_RST}
+	@printf ${CL_CYN}"Package Complete: $(OWNROM_TARGET_PACKAGE)\n"${CL_RST}
+	@printf ${CL_CYN}"ROM Size: `ls -hal $(OWNROM_TARGET_PACKAGE) | cut -d ' ' -f 5`\n"${CL_RST}
+	@printf ${CL_CYN}"MD5: `cat $(OWNROM_TARGET_PACKAGE).md5sum | cut -d ' ' -f 1`\n\n"${CLR_RST}
 
 endif    # build_ota_package
 # -----------------------------------------------------------------
